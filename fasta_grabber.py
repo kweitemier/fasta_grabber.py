@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 from os import path  #Importing two methods from os module
 from optparse import OptionParser    #Imports the option parser module
+import sys
 
 ###### OPTIONS and USAGE ######
 parser = OptionParser(usage = """fasta_grabber.py -f FASTA_FILE -l ID_LIST -o OUTPUT
@@ -25,11 +26,16 @@ not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 Input - A fasta file where the sequence is contained on one line, and a list
     of fasta IDs.""")
 parser.add_option("-f", action="store", type="string", dest="fastafile",
-    help="Name of the fasta file.", default="")
+    help='Name of the fasta file. May be "-" for STDIN.', default="")
 parser.add_option("-l", action="store", type="string", dest="listfile",
     help="Name of the list file", default="")
 parser.add_option("-o", action="store", type="string", dest="outname",
-    help="Name of the output file.", default="")
+    help='Name of the output file. May be "-" for STDOUT.', default="")
+parser.add_option("-c", action="store_true", dest="header", default=False,
+    help="Only match by the first column of the ID? (separator given by -s)")
+parser.add_option("-s", action="store",
+    type="string", dest="separator", default=" ",
+    help="""When used with -c, delimitor for the first column of the ID. Default=" "[space].""")
 (options, args) = parser.parse_args()
 
 # Makes sure all filenames are given
@@ -41,12 +47,18 @@ if options.outname == "":
     parser.error("Please include and output filename using -o.")
 
 ###### OPENING INPUT/OUTPUT FILES ######
-if path.isfile(options.outname):
+if path.isfile(options.outname) and options.outname != "-":
     parser.error("""The output filename exists. Please delete it first or \
 choose a new name.""")
-Infile2 = open(options.fastafile, 'r')
+if options.fastafile == "-":
+    Infile2 = sys.stdin
+else:
+    Infile2 = open(options.fastafile, 'r')
 Infile1 = open(options.listfile, 'r')
-Outfile = open(options.outname, 'w')
+if options.outname == "-":
+    Outfile = sys.stdout
+else:
+    Outfile = open(options.outname, 'w')
 
 # Get the list of bubbles
 Line1 = Infile1.readline()
@@ -60,7 +72,11 @@ while Line1:
 Line2 = Infile2.readline()
 while Line2:
     if Line2.startswith('>'):
-        TestNum = Line2.strip()
+        if options.header:
+            Fields = Line2.split(options.separator)
+            TestNum = Fields[0]
+        else:
+            TestNum = Line2.strip()
         if TestNum in BubbleDict:
             Outfile.write("%s" % (Line2))
             Line2 = Infile2.readline()
