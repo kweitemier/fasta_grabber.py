@@ -4,17 +4,18 @@ from optparse import OptionParser    #Imports the option parser module
 import sys
 
 ###### OPTIONS and USAGE ######
-parser = OptionParser(usage = """fasta_grabber.py -f FASTA_FILE -l ID_LIST -o OUTPUT
+parser = OptionParser(usage = """fasta_grabber.py -f FASTA_FILE -l ID_LIST -o OUTPUT [-c -s SEPARATOR]
 
 fasta_grabber.py - Outputs fasta sequences with IDs that exactly match
-    (including the leading '>') the IDs present in a list.
+    (including the leading '>') the complete IDs present in a list, or, with the
+    -c option, just the first portion of the IDs.
 
 
                                        by
                                 Kevin Weitemier
-                                 August  2013
+                                  April  2018
 
-Copyright (c) 2013  Kevin Weitemier.
+Copyright (c) 2013,2018  Kevin Weitemier.
 This program is free software: you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
 Foundation, either version 3 of the License, or (at your option) any later
